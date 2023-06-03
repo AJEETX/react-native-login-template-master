@@ -19,12 +19,12 @@ export default function App() {
     <Provider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="HOME"
+          initialRouteName="StartScreen"
           screenOptions={{
             headerShown: false,
           }}
         >
-          <Stack.Screen name="HOME PAGE" component={StartScreen} />
+          <Stack.Screen name="StartScreen" component={StartScreen} />
           <Stack.Screen name="LoginScreen" component={LoginScreen} />
           <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
           <Stack.Screen name="Mailbox" component={Mailbox} />
