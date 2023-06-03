@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet, View } from 'react-native'
+import { TouchableOpacity, StyleSheet, View, Alert } from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
@@ -15,7 +15,7 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
 
-  const onLoginPressed = () => {
+  const onLoginPressed = async (e) => {
     const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
     if (emailError || passwordError) {
@@ -23,10 +23,59 @@ export default function LoginScreen({ navigation }) {
       setPassword({ ...password, error: passwordError })
       return
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Dashboard' }],
-    })
+    const headerOptions = new Headers()
+    headerOptions.append(
+      'Content-Type',
+      'application/x-www-form-urlencoded;charset=UTF-8'
+    )
+    headerOptions.append('Accept', 'application/json')
+    headerOptions.append(
+      'Access-Control-Allow-Origin',
+      'http://localhost:19006'
+    )
+    headerOptions.append('Access-Control-Allow-Credentials', 'true')
+    headerOptions.append('GET', 'POST', 'OPTIONS')
+    const dataToSend = {
+      Email: email.value,
+      Password: password.value,
+      returnUrl: 'http://localhost:19006/',
+    }
+    let formBody = []
+    for (const key in dataToSend) {
+      if (Object.hasOwn(dataToSend, key)) {
+        const encodedKey = encodeURIComponent(key)
+        const encodedValue = encodeURIComponent(dataToSend[key])
+        formBody.push(encodedKey + '=' + encodedValue)
+      }
+    }
+
+    formBody = formBody.join('&')
+    e.preventDefault()
+    const requestOptions = {
+      method: 'POST',
+      headers: headerOptions,
+      body: formBody,
+    }
+
+    const response = await fetch(
+      'http://localhost:5226/Account/login',
+      requestOptions
+    )
+    try{
+      const data = await response.json()
+      if (data !== null && data.success === 'SUCCESS') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Mailbox' }],
+        })
+      }
+      else{
+        <Alert />
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
   }
 
   return (
